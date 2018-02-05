@@ -6,13 +6,14 @@ class MonitorService {
   localFolderPath = '';
 
   startMonitoring(folderPath) {
+
     console.log('Started listening..');
     this.localFolderPath = folderPath;
     this.setMonitoringData(this.localFolderPath, {});
 
     watch.createMonitor(this.localFolderPath, {interval: 1}, (monitor) => {
       monitor.on('created', (f, stat) => {
-        const status = stat.isDirectory() ? 'new folder created' : 'new file created';
+        const status = stat.isDirectory() ? 'New folder created' : 'New file created';
         let isAlreadyExists = false;
 
         this.statusArr.forEach(item => {
@@ -31,7 +32,7 @@ class MonitorService {
 
       monitor.on('changed', (f, curr, prev) => {
 
-        const status = curr.isDirectory() ? 'folder updated' : 'file updated';
+        const status = 'File updated';
 
         this.statusArr.unshift({status, fileName: f});
         this.setMonitoringData(folderPath, this.statusArr);
@@ -40,8 +41,7 @@ class MonitorService {
 
       monitor.on('removed', (f, stat) => {
 
-        const status = stat.isDirectory() ? 'folder removed' : 'file removed';
-
+        const status = stat.isDirectory() ? 'Folder removed' : 'File removed';
         this.statusArr.unshift({status, fileName: f});
         this.setMonitoringData(folderPath, this.statusArr);
         console.log(status);

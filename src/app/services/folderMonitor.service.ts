@@ -1,31 +1,36 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {IntervalObservable} from 'rxjs/observable/IntervalObservable';
-import {Subscription} from 'rxjs/Subscription';
 import {apiUrl, httpOptions} from '../consts';
+import {Observable} from "rxjs/Observable";
+import { catchError, map, tap } from 'rxjs/operators';
+import 'rxjs/add/observable/throw';
 
 @Injectable()
 
-export class HttpService {
-  public folderDoesNotExist: boolean;
-  obs: Subscription;
-  eventArr = [];
+export class FolderMonitorService {
+
+  eventArr: any[] = [];
   private monitoringPath = apiUrl + 'monitor/';
 
   constructor(private http: HttpClient) { }
 
-  start(selectedFolder) {
-    return this.http.post( this.monitoringPath + 'start', selectedFolder, httpOptions);
+  start(selectedFolder): Observable<any> {
+    return this.http.post( this.monitoringPath + 'start', selectedFolder, httpOptions)
+      .pipe(
+        tap(() => { console.log(`start monitoring`); }),
+        catchError(this.handleError('startMonitoring', []))
+      );
   }
 
-  stop(obs$) {
+  stop(obs$): void {
     if (!obs$) { return; }
     obs$.unsubscribe();
     this.eventArr = [];
     this.http.post( this.monitoringPath + 'stop', null, httpOptions).subscribe();
   }
 
-  getEventArr() {
+  getEventArr(): any[] {
     return this.eventArr;
   }
 
@@ -35,38 +40,55 @@ export class HttpService {
       .mergeMap((i) => this.http.get(this.monitoringPath + 'status'))
       .subscribe((res: Array<any>) => {
         if (res && res.length) {
-          res.forEach(item => this.addIcon(item));
+          res.forEach(item => this.addAttributes(item));
           this.eventArr.unshift(...res);
         }
       });
   }
 
-  addIcon(event) {
+  addAttributes(event): void {
+
+    const createFolder = {icon: "create_new_folder", color: "green"};
+    const createFile = {icon: "insert_drive_file", color: "green"};
+    const deleteFile = {icon: "delete_forever", color: "red"};
+    const updateFile = {icon: "message", color: "blue"};
+
     switch (event.status) {
+
       case("New folder created"):
-        event['icon'] = "create_new_folder";
-        event['color'] = "green";
+        event['icon'] = createFolder.icon;
+        event['color'] = createFolder.color;
         return;
 
       case("New file created"):
-        event['icon'] = "insert_drive_file";
-        event['color'] = "green";
+        event['icon'] = createFile.icon;
+        event['color'] = createFile.color;
         return;
 
       case("File removed"):
-        event['icon'] = "delete_forever";
-        event['color'] = "red";
-        return;
-
-      case("Folder removed"):
-        event['icon'] = "delete_forever";
-        event['color'] = "red";
+        event['icon'] = deleteFile.icon;
+        event['color'] = deleteFile.color;
         return;
 
       case("File updated"):
-        event['icon'] = "message";
-        event['color'] = "blue";
+        event['icon'] = updateFile.icon;
+        event['color'] = updateFile.color;
+        return;
     }
+  }
+
+  private handleError<T> (operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      console.log(`${operation} failed: ${error.message}`);
+      return Observable.throw(`${error.message}`);
+      // Let the app keep running by returning an empty result.
+
+    };
   }
 
 }

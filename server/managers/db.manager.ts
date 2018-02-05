@@ -24,6 +24,9 @@ class MyDBManager {
   }
 
   createTable() {
+
+    // just for demo purposes - I added passwords to the db without going through hash functions..
+
     const db = new sqlite3.Database('myDB2', (err) => {
       if (err) {
         return console.error(err.message);
@@ -42,7 +45,7 @@ class MyDBManager {
     });
   }
 
-  login(user, callback) {
+  login(userObj, callback) {
     const db = new sqlite3.Database('myDB2', (err) => {
       if (err) {
         return console.error(err.message);
@@ -51,13 +54,9 @@ class MyDBManager {
     });
 
     db.serialize(function() {
-      const getStmt = `SELECT * from users where user_name=${user}`;
-      db.get(getStmt, function(err, row) {
-        callback(true);
-        //
-        // if (row) {
-        //   callback(true);
-        // }
+      const getStmt = `SELECT * from users where user_name= ? AND password = ?`;
+      db.get(getStmt, [userObj.username, userObj.pw], function(err, row) {
+        callback(!!row);
       });
       db.close((err) => {
         if (err) {
@@ -70,8 +69,3 @@ class MyDBManager {
 }
 
 export default new MyDBManager();
-
-
-
-
-

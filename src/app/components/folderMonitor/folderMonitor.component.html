@@ -1,7 +1,43 @@
-<input type="file" webkitdirectory directory multiple #file (change)="onFolderChanged(file)"/>
-<button (click)="play()">play</button>
-<button (click)="stop()">stop</button>
-<ul *ngFor="let event of eventArr">
-  <li>{{event.status}}</li>
-  <li>{{event.fileName}}</li>
-</ul>
+
+<div class="monitor-container">
+  <button class="logout-button" mat-raised-button color="primary" (click)="logout()">Log out</button>
+  <div class="input-and-buttons-container">
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Insert folder path..." [(ngModel)]="selectedFolder">
+    </mat-form-field>
+    <button mat-fab *ngIf="!isPlayPressed || failedMessage" (click)="play()">
+      <mat-icon>play_arrow</mat-icon>
+    </button>
+    <div class="loader-container" *ngIf="isPlayPressed && !failedMessage">
+      <div class="pre-loader"></div>
+    </div>
+    <button mat-fab (click)="stop()">
+      <mat-icon>stop</mat-icon>
+    </button>
+  </div>
+
+  <div class="my-list-container">
+    <div class="caption-container">
+      <div class="animated pulse infinite" *ngIf="isPlayPressed && !failedMessage">
+        <h3 class="mat-h3">Monitoring..</h3>
+      </div>
+      <div class="animated shake" *ngIf="failedMessage">
+        <h3 class="mat-h3">{{failedMessage}}</h3>
+      </div>
+    </div>
+    <mat-list>
+      <h3 mat-subheader *ngIf="eventArr.length">Event Logger</h3>
+      <div *ngIf="eventArr.length" class="my-list">
+        <mat-list-item *ngFor="let logEvent of eventArr">
+          <mat-icon mat-list-icon [ngClass]="{'removed' : logEvent.color === 'red',
+                                              'created' : logEvent.color === 'green',
+                                              'updated' : logEvent.color === 'blue'}">{{logEvent.icon}}</mat-icon>
+
+          <h4 class="event-status" mat-line>{{logEvent.status}}</h4>
+          <p class="event-filename" mat-line>{{logEvent.fileName}}</p>
+          <mat-divider></mat-divider>
+        </mat-list-item>
+      </div>
+    </mat-list>
+  </div>
+</div>

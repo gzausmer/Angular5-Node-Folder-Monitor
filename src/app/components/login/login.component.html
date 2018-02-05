@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<div class="login-container">
+  <h1 class="mat-display-1">Login</h1>
+  <mat-form-field>
+    <input matInput placeholder="username" [(ngModel)]="user.username" required>
+  </mat-form-field>
+  <mat-form-field>
+    <input type="password" matInput placeholder="password" [(ngModel)]="user.pw" required>
+  </mat-form-field>
+  <div class="animated shake" *ngIf="notAuthorised">
+    <!--<h3 class="mat-h3" *ngIf="!failedMessage">Incorrect login details</h3>-->
+    <h3 class="mat-h3">{{failedMessage}}</h3>
+  </div>
+  <button mat-raised-button color="primary" (click)="login()">Login</button>
+
+</div>
+
