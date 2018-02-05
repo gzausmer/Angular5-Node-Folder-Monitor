@@ -1,0 +1,7 @@
+<input type="file" webkitdirectory directory multiple #file (change)="onFolderChanged(file)"/>
+<button (click)="play()">play</button>
+<button (click)="stop()">stop</button>
+<ul *ngFor="let event of eventArr">
+  <li>{{event.status}}</li>
+  <li>{{event.fileName}}</li>
+</ul>
